@@ -653,6 +653,14 @@ impl<'a> FromSql<'a> for Vec<u8> {
     accepts!(BYTEA);
 }
 
+impl<'a> FromSql<'a> for Cow<'a, [u8]> {
+    fn from_sql(_: &Type, raw: &'a [u8]) -> Result<Cow<'a, [u8]>, Box<dyn Error + Sync + Send>> {
+        Ok(types::bytea_from_sql(raw)).map(Cow::Borrowed)
+    }
+
+    accepts!(BYTEA);
+}
+
 impl<'a> FromSql<'a> for &'a [u8] {
     fn from_sql(_: &Type, raw: &'a [u8]) -> Result<&'a [u8], Box<dyn Error + Sync + Send>> {
         Ok(types::bytea_from_sql(raw))
@@ -681,6 +689,14 @@ impl<'a> FromSql<'a> for Box<str> {
     fn accepts(ty: &Type) -> bool {
         <&str as FromSql>::accepts(ty)
     }
+}
+
+impl<'a> FromSql<'a> for Cow<'a, str> {
+    fn from_sql(ty: &Type, raw: &'a [u8]) -> Result<Cow<'a, str>, Box<dyn Error + Sync + Send>> {
+        <&str as FromSql>::from_sql(ty, raw).map(Cow::Borrowed)
+    }
+
+    accepts!(BYTEA);
 }
 
 impl<'a> FromSql<'a> for &'a str {
